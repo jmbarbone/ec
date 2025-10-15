@@ -1,0 +1,18 @@
+Package: ec
+Type: Package
+Title: Encapsulated Classes
+Version: 0.1.0.9000
+Authors@R: person(
+            "Jordan Mark", "Barbone",
+            email = "jmbarbone@gmail.com",
+            role = c("aut", "cph", "cre"),
+            comment = c(ORCID = "0000-0001-9788-3628")
+          )
+Description: Create simple, environment-based classes for object oriented 
+    programming.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Language: en-US
+RoxygenNote: 7.3.3
+Roxygen: list(markdown = TRUE)
