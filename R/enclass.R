@@ -36,12 +36,13 @@
 #'
 #' @return A object with class `ec_object`
 #' @aliases ec_object
+#' @export
 #' @examples
 #' Counter := enclass({
 #'   .actions <- list()
 #'   .track <- function(action, value) {
-#'     self$.actions <- c(
-#'       self$.actions,
+#'     self@.actions <- c(
+#'       self@.actions,
 #'       list(
 #'         list(
 #'           time = Sys.time(),
@@ -53,7 +54,7 @@
 #'   }
 #'
 #'   .show_actions <- function() {
-#'     Reduce(rbind, lapply(.actions, as.data.frame))
+#'     Reduce(rbind, lapply(self@.actions, as.data.frame))
 #'   }
 #'
 #'   current <- active(
@@ -99,8 +100,8 @@
 #' try(counter$reset(-1L))
 #' counter$show()
 #' counter$.show_actions()
-#' counter@.__name__.
-#' counter@.__package__.
+#' counter[[".__name__."]]
+#' counter[[".__package__."]]
 enclass <- function(
   name,
   expr = NULL,

@@ -46,6 +46,7 @@ capsule <- new_capsule({
   y <- 0L
 })
 
+
 capsule@x
 capsule@x
 capsule@y

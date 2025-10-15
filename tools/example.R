@@ -86,6 +86,31 @@ my_capsule <- new_capsule({
   }
 })
 
+
+cap <- new_capsule({
+  x <- 1
+  y <- active(
+    default = 2L,
+    set = function(value) {
+      self@x <- value
+    },
+    get = function() {
+      ..value.. <<- ..value.. + 1L
+      ..value..
+    }
+  )
+
+  reset <- function() {
+    self@y <- 0L
+    invisible(self)
+  }
+})
+
+cap@x
+cap@y
+cap@x
+cap@y
+
 enclass(my_capsule)
 
 

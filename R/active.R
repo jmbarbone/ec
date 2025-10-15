@@ -44,6 +44,7 @@ print.pseudo <- function(x, ...) {
 #'   y <- 0L
 #' })
 #'
+#'
 #' capsule@x
 #' capsule@x
 #' capsule@y

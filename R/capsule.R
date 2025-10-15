@@ -31,14 +31,15 @@ new_capsule <- function(expr) {
     parent = parent.env(template)
   )
 
-  self$self <- self
+  class(self) <- "ec_capsule"
+  self[["self"]] <- self
 
-  for (i in self$.__locked__.) {
+  for (i in self[[".__locked__."]]) {
     lockBinding(i, self)
   }
 
   if (!missing(expr)) {
-    self$.__expr__. <- substitute(expr)
+    self[[".__expr__."]] <- substitute(expr)
     # TODO consider if the syntax should explicitly reflect:
     #
     # ```r
@@ -75,7 +76,7 @@ new_capsule <- function(expr) {
 
   accessibles <- setdiff(
     ls(envir = self, all.names = TRUE),
-    self$.__restricted__.
+    self[[".__restricted__."]]
   )
 
   # temporarily locked so that the user doesn't overwrite them directly
@@ -85,26 +86,26 @@ new_capsule <- function(expr) {
   actives <- Filter(function(x) inherits(x, "active"), mget(accessibles, self))
   nonactive <- setdiff(accessibles, names(actives))
 
-  self$.__methods__. <- Filter(is.function, mget(nonactive, self))
-  self$.__properties__. <- mget(
-    setdiff(nonactive, names(self$.__methods__.)),
+  self[[".__methods__."]] <- Filter(is.function, mget(nonactive, self))
+  self[[".__properties__."]] <- mget(
+    setdiff(nonactive, names(self[[".__methods__."]])),
     self
   )
-  self$.__methods__. <- list2env(self$.__methods__., parent = self)
-  self$.__properties__. <- list2env(self$.__properties__., parent = self)
+  self[[".__methods__."]] <- list2env(self[[".__methods__."]], parent = self)
+  self[[".__properties__."]] <- list2env(self[[".__properties__."]], parent = self)
 
   for (name in names(actives)) {
-    makeActiveBinding(name, actives[[name]], self$.__properties__.)
+    makeActiveBinding(name, actives[[name]], self[[".__properties__."]])
   }
 
   rm(list = accessibles, envir = self)
-  lockEnvironment(self$.__methods__.)
-  lockEnvironment(self$.__properties__.)
+  lockEnvironment(self[[".__methods__."]])
+  lockEnvironment(self[[".__properties__."]])
 
   lockBinding(".__methods__.", self)
   lockBinding(".__properties__.", self)
 
-  properties <- names(self$.__properties__.)
+  properties <- names(self[[".__properties__."]])
   public <- properties[!startsWith(properties, ".")]
   private <- properties[startsWith(properties, ".")]
 
