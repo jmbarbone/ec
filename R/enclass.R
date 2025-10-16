@@ -102,7 +102,7 @@
 #' counter$.show_actions()
 #' counter[[".__name__."]]
 #' counter[[".__package__."]]
-enclass <- function(
+enclass <- contain(function(
   name,
   expr = NULL,
   package = .package()
@@ -116,25 +116,25 @@ enclass <- function(
   }
 
   if (!is.null(name)) {
-    capsule[[".__name__."]] <- name
+    capsule[.__name__.] <- name
   }
 
   if (!is.null(package)) {
-    capsule[[".__package__."]] <- package
+    capsule[.__package__.] <- package
   }
 
   # temporary locked to prevent user from overwriting
   # browser()
   (base::unlockBinding)(".__init__.", capsule)
-  formals(capsule[[".__init__."]]) <- formals(capsule[[".__new__."]])
+  formals(capsule[.__init__.]) <- formals(capsule[.__new__.])
   lockBinding(".__init__.", capsule)
-  capsule[[".__init__."]]
-}
+  capsule[.__init__.]
+})
 
 # fuj:::package
-.package <- function(env = parent.frame()) {
+.package <- contain(function(env = parent.frame()) {
   top <- topenv(env)
   if (isNamespace(top)) {
     unname(getNamespaceName(top))
   }
-}
+})

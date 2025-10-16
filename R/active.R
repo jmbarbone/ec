@@ -1,6 +1,7 @@
 ..value.. <- structure(list(), class = "pseudo")
 ..setter.. <- structure(list(), class = "pseudo")
 ..getter.. <- structure(list(), class = "pseudo")
+..name.. <- structure(list(), class = "pseudo")
 
 #' @export
 print.pseudo <- function(x, ...) {
@@ -51,7 +52,7 @@ print.pseudo <- function(x, ...) {
 #' capsule@x <- 10L
 #' capsule@x
 #' capsule@y
-active <- function(
+active <- contain(function(
   default = NULL,
   get = function() ..value..,
   set = function(value) value
@@ -72,6 +73,8 @@ active <- function(
   env$..value.. <- default
   env$..getter.. <- get
   env$..setter.. <- set
+  env$..name.. <- NULL
+  lockEnvironment(env)
 
   fun <- local(
     envir = env,
@@ -85,6 +88,15 @@ active <- function(
   )
 
   structure(fun, class = "active")
+})
+
+lock <- function(value) {
+  active(
+    default = value,
+    set = function(value) {
+      stop(sprintf("'%s' is read-only", ..name..), call. = FALSE)
+    }
+  )
 }
 
 #' @export

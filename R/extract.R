@@ -1,13 +1,12 @@
 #' @export
 `@.ec_capsule` <- function(object, name) {
   name <- substitute(name)
-
   if (name == "self") {
     return(object)
   }
 
-  if (!name %in% names(object[[".__properties__."]])) {
-    if (name %in% names(object[[".__methods__."]])) {
+  if (!is_field(object[.__properties__.], name)) {
+    if (is_field(object[.__methods__.], name)) {
       stop(sprintf(
         "'%1$s' is a method, not a property, use '$%1$s()` instead",
         name
@@ -16,21 +15,18 @@
     stop(sprintf("No property named '%s'", name))
   }
 
-  # if (isTRUE(object[[".__getter_invoked__."]][[name]])) {
-  #   return(get(name, object[[".__properties__."]]))
-  # }
-  #
-  # assign(name, TRUE, object[[".__getter_invoked__."]])
-  # on.exit(assign(name, FALSE, object[[".__getter_invoked__."]]))
-  # get(name, get(".__getters__.", object))()
-  get(name, object[[".__properties__."]], inherits = FALSE)
+  object[.__properties__.][[name]]
 }
 
 #' @export
 `@<-.ec_capsule` <- function(object, name, value) {
   name <- substitute(name)
-  if (!name %in% names(get(".__properties__.", object))) {
-    if (name %in% names(get(".__methods__.", object))) {
+  if (name == "self") {
+    stop("Cannot reassign 'self'")
+  }
+
+  if (!is_field(object[.__properties__.], name)) {
+    if (is_field(object[.__methods__.], name)) {
       stop(sprintf(
         "'%1$s' is a method, not a property, use '$%1$s <- value' instead",
         name
@@ -39,25 +35,24 @@
     stop(sprintf("No property named '%s'", name))
   }
 
-  # hmm... makeActiveBinding() may be a better solution here...
-  # if (isTRUE(object[[".__setter_invoked__."]][[name]])) {
-  #   return(assign(name, value, object[[".__properties__."]]))
-  # }
-  #
-  # assign(name, TRUE, object[[".__setter_invoked__."]])
-  # on.exit(assign(name, FALSE, object[[".__setter_invoked__."]]))
-  # get(name, object[[".__setters__."]], inherits = FALSE)(value)
-  # unlockBinding(name, object[[".__properties__."]])
-  # on.exit(lockBinding(name, object[[".__properties__."]]), add = TRUE)
-  assign(name, value, object[[".__properties__."]])
-  invisible(object)
+  assign(name, value, object[.__properties__.])
+  object
 }
 
 #' @export
 `$.ec_capsule` <- function(x, name) {
   name <- substitute(name)
   name <- as.character(name)
-  get(name, x[[".__methods__."]], mode = "function", inherits = FALSE)
+  if (!is_field(x[.__methods__.], name)) {
+    if (is_field(x[.__properties__.], name)) {
+      stop(sprintf(
+        "'%1$s' is a property, not a method, use '@%1$s' instead",
+        name
+      ))
+    }
+    stop(sprintf("No method named '%s'", name))
+  }
+  x[.__methods__.][[name]]
 }
 
 #' @export
@@ -65,8 +60,19 @@
   name <- substitute(name)
   name <- as.character(name)
   value <- match.fun(value)
-  assign(name, value, x[[".__methods__."]])
-  invisible(x)
+
+  if (!is_field(x[.__methods__.], name)) {
+    if (is_field(x[.__properties__.], name)) {
+      stop(sprintf(
+        "'%1$s' is a property, not a method, use '@%1$s <- value' instead",
+        name
+      ))
+    }
+    stop(sprintf("No method named '%s'", name))
+  }
+
+  assign(name, value, x[.__methods__.])
+  x
 }
 
 #' @export
@@ -76,6 +82,13 @@
   }
 
   stop(sprintf("No element named '%s'", i))
+}
+
+#' @export
+`[.ec_capsule` <- function(x, i, ...) {
+  i <- substitute(i)
+  i <- as.character(i)
+  `[[.ec_capsule`(x, i, ...)
 }
 
 #' @export
@@ -90,25 +103,31 @@
   stop(sprintf("No element named '%s'", i))
 }
 
+#' @export
+`[<-.ec_capsule` <- function(x, i, value) {
+  i <- substitute(i)
+  i <- as.character(i)
+  `[[<-.ec_capsule`(x, i, value)
+}
+
 #' @exportS3Method utils::.DollarNames
 .DollarNames.ec_capsule <- function(x, pattern = "") {
-  methods <- names(x[[".__methods__."]])
-
-  if (!startsWith(pattern, ".")) {
-    methods <- methods[!startsWith(methods, ".")]
-  }
-
-  grep(pattern, methods, fixed = TRUE, value = TRUE)
+  dot_names(x[.__methods__.], pattern)
 }
 
 #' @exportS3Method utils::.AtNames
 .AtNames.ec_capsule <- function(x, pattern = "") {
-  properties <- names(x[[".__properties__."]])
-
-  # does this not work?
-  if (!startsWith(pattern, ".")) {
-    properties <- properties[!startsWith(properties, ".")]
-  }
-
-  grep(pattern, c("self", properties), fixed = TRUE, value = TRUE)
+  dot_names(x[.__properties__.], pattern)
 }
+
+
+# helpers -----------------------------------------------------------------
+
+dot_names <- contain(function(x, pattern) {
+  nms <- names(x)
+  grep(pattern, nms[!startsWith(nms, ".")], value = TRUE, fixed = TRUE)
+})
+
+is_field <- contain(function(x, name) {
+  name %in% names(x)
+})

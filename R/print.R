@@ -1,10 +1,12 @@
 #' @export
 print.ec_capsule <- function(x, ...) {
   cat("<ec_capsule>\n")
-  cat("  .__name__.  ", x[[".__name__."]], "\n", sep = "")
+  cat("  .__name__.  ", x[.__name__.], "\n", sep = "")
   cat("  .__properties__.\n")
-  properties <- names(x[[".__properties__."]])
-  properties <- properties[!startsWith(properties, ".")]
+  properties <- names(x[.__properties__.])
+  if (!is.null(properties)) {
+    properties <- properties[!startsWith(properties, ".")]
+  }
   if (length(properties)) {
     for (p in properties) {
       cat("      @ ", p, "\n", sep = "")
@@ -14,11 +16,13 @@ print.ec_capsule <- function(x, ...) {
   }
 
   cat("  .__methods__.\n")
-  methods <- names(x[[".__methods__."]])
-  methods <- methods[!startsWith(methods, ".")]
+  methods <- names(x[.__methods__.])
+  if (!is.null(methods)) {
+    methods <- methods[!startsWith(methods, ".")]
+  }
   if (length(methods)) {
     for (m in methods) {
-      forms <- formals(x[[".__methods__."]][[m]])
+      forms <- formals(x[.__methods__.][[m]])
       if (is.null(forms)) {
         args <- ""
       } else {

@@ -3,6 +3,7 @@ devtools::load_all(".")
 
 # mock --------------------------------------------------------------------
 
+# debugonce(new_capsule)
 my_capsule <- new_capsule({
   # use 'active()' to provide setters and getters for properties.  These are
   # triggered when the property is accessed or modified, allowing for custom
@@ -41,19 +42,21 @@ my_capsule <- new_capsule({
     }
   )
 
+  c <- lock(TRUE)
+
   .results <- integer()
 
   #' @description Add a non-negative integer to 'a' and return the sum of 'a',
   #' 'b', and the argument.
   #' @param x A non-negative integer to add to 'a'
-  add <- function(x = 0L) {
+  add <- lock(function(x = 0L) {
     self@a <- self@a + x
     self$.log()
     self@a + self@b + as.integer(x)
-  }
+  })
 
   #' @description Show the current values of 'a' and 'b'
-  logs <- function() {
+  logs <- lock(function() {
     invisible(lapply(
       self@.logs,
       function(x)
@@ -63,7 +66,7 @@ my_capsule <- new_capsule({
           deparse1(x$call)
         ))
     ))
-  }
+  })
 
   .logs <- NULL
 
@@ -86,6 +89,13 @@ my_capsule <- new_capsule({
   }
 })
 
+my_capsule@c
+try(my_capsule@c <- 1)
+my_capsule@a
+my_capsule@a <- 1L
+my_capsule@b
+my_capsule@b <- 2L
+my_capsule@a
 
 cap <- new_capsule({
   x <- 1
