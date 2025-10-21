@@ -92,6 +92,13 @@
 }
 
 #' @export
+`[.ec_generator` <- function(x, i) {
+  i <- substitute(i)
+  i <- as.character(i)
+  get(i, environment(x))
+}
+
+#' @export
 `[[<-.ec_capsule` <- function(x, i, value) {
   if (i %in% names(x)) {
     # unlockBinding(i, x)

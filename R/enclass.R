@@ -127,6 +127,7 @@ enclass <- contain(function(
   # browser()
   (base::unlockBinding)(".__init__.", capsule)
   formals(capsule[.__init__.]) <- formals(capsule[.__new__.])
+  class(capsule[.__init__.]) <- "ec_generator"
   lockBinding(".__init__.", capsule)
   capsule[.__init__.]
 })
