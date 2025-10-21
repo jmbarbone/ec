@@ -119,7 +119,9 @@ contain({
   .__clone__. <- function() {
     clone <- new.env(parent = self)
     list2env(self[[".__as_list__."]](), clone)
-    for (field in names(self)) {
+
+    # copies environments, except for .__properties__.
+    for (field in setdiff(names(self), ".__properties__.")) {
       if (is.environment(self[[field]])) {
         assign(
           field,
@@ -128,6 +130,25 @@ contain({
         )
       }
     }
+
+    # re-establish active bindings in .__properties__.; there are some issues
+    # # when we try to make a new active binding?
+    for (binding in ls(self[[".__properties__."]], all.names = FALSE)) {
+      if (bindingIsActive(binding, self[[".__properties__."]])) {
+        makeActiveBinding(
+          binding,
+          activeBindingFunction(binding, self[[".__properties__."]]),
+          clone[[".__properties__."]]
+        )
+      } else {
+        assign(
+          binding,
+          get(binding, self[[".__properties__."]]),
+          clone[[".__properties__."]]
+        )
+      }
+    }
+
     clone
   }
 
