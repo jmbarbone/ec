@@ -45,7 +45,7 @@ contain({
     )
   })
 
-  self <- environment()
+  assign("self", environment())
   act(".__name__.", {
     .value <- NULL
     function(value) {
@@ -76,26 +76,21 @@ contain({
     }
   })
 
-  .__expr__. <- NULL
-  .__restricted__. <- NULL # set on exit
-  .__restricted_pattern__. <- "^\\.__.*\\__.$"
-  .__properties__. <- list()
-  .__methods__. <- list()
-  # .__setter_invoked__. <- list() # saved over as env
-  # .__getter_invoked__. <- list() # saved over as env
-  # populate with defaults
-  # TODO look at makeActiveBinding()
-  # .__setters__. <- list() # converted to env
-  # .__getters__. <- list() # converted to env
-  .__restricted__. <- character()
-  .__locked__. <- c(
-    ".__locked__.",
-    ".__restricted_pattern__.",
-    ".__properties__.",
-    ".__methods__.",
-    ".__restricted__.",
-    ".__clone__.",
-    ".__init__."
+  assign(".__expr__.", NULL)
+  assign(".__restricted__.", character()) # set on exit
+  assign(".__restricted_pattern__.", "^\\.__.*\\__.$")
+  assign(".__properties__.", list())
+  assign(
+    ".__locked__",
+    c(
+      ".__locked__.",
+      ".__restricted_pattern__.",
+      ".__properties__.",
+      ".__methods__.",
+      ".__restricted__.",
+      ".__clone__.",
+      ".__init__."
+    )
   )
 
   act(".__new__.", {
@@ -115,91 +110,100 @@ contain({
 
   # TODO consider .__create__. vs .__init__.: .__init__. would initialize
   # properties if they aren't preset
-  .__init__. <- function() {
-    new <- self[[".__clone__."]]()
-    class(new) <- c("ec_object", "ec_capsule")
-    args <- as.list(match.call(expand.dots = TRUE))[-1L]
-    do.call(new[[".__new__."]], args, envir = new)
-    # TODO different print method for ec_object
-    class(new) <- c(new[[".__name__."]], "ec_object", "ec_capsule")
-    new
-  }
+  assign(
+    ".__init__.",
+    function() {
+      new <- self[[".__clone__."]]()
+      class(new) <- c("ec_object", "ec_capsule")
+      args <- as.list(match.call(expand.dots = TRUE))[-1L]
+      do.call(new[[".__new__."]], args, envir = new)
+      # TODO different print method for ec_object
+      class(new) <- c(new[[".__name__."]], "ec_object", "ec_capsule")
+      new
+    }
+  )
 
-  .__clone__. <- function() {
-    # browser()
-    clone <- new.env(parent = self, hash = TRUE)
-    list2env(self[[".__as_list__."]](), clone)
+  assign(
+    ".__clone__.",
+    function() {
+      # browser()
+      clone <- new.env(parent = self, hash = TRUE)
+      list2env(self[[".__as_list__."]](), clone)
 
-    # copies environments, except for .__properties__.
-    for (field in names(self)) {
-      switch(
-        field,
-        self = {
-          # this has to be done anyway
-          clone[["self"]] <- clone
-        },
-        ".__methods__." = {
-          assign(".__methods__.", new.env(parent = clone, hash = TRUE), clone)
-          if (is.environment(self[[".__methods__."]])) {
-            assign(
-              ".__methods__.",
-              clone_env(self[[".__methods__."]], clone),
-              as.list(self[[".__methods__."]], all.names = TRUE),
-              clone
-            )
-          } else {
-            list2env(self[[".__methods__."]], clone[[".__methods__."]])
-          }
-        },
-        ".__properties__." = {
-          assign(
-            ".__properties__.",
-            new.env(parent = clone, hash = TRUE),
-            clone
-          )
-
-          for (binding in names(self[[".__properties__."]])) {
-            if (bindingIsActive(binding, self[[".__properties__."]])) {
-              makeActiveBinding(
-                binding,
-                activeBindingFunction(binding, self[[".__properties__."]]),
-                clone[[".__properties__."]]
+      # copies environments, except for .__properties__.
+      for (field in names(self)) {
+        switch(
+          field,
+          self = {
+            # this has to be done anyway
+            clone[["self"]] <- clone
+          },
+          ".__methods__." = {
+            assign(".__methods__.", new.env(parent = clone, hash = TRUE), clone)
+            if (is.environment(self[[".__methods__."]])) {
+              assign(
+                ".__methods__.",
+                clone_env(self[[".__methods__."]], clone),
+                as.list(self[[".__methods__."]], all.names = TRUE),
+                clone
               )
             } else {
-              assign(
-                binding,
-                get(binding, self[[".__properties__."]]),
-                clone[[".__properties__."]]
-              )
+              list2env(self[[".__methods__."]], clone[[".__methods__."]])
+            }
+          },
+          ".__properties__." = {
+            assign(
+              ".__properties__.",
+              new.env(parent = clone, hash = TRUE),
+              clone
+            )
+
+            for (binding in names(self[[".__properties__."]])) {
+              if (bindingIsActive(binding, self[[".__properties__."]])) {
+                makeActiveBinding(
+                  binding,
+                  activeBindingFunction(binding, self[[".__properties__."]]),
+                  clone[[".__properties__."]]
+                )
+              } else {
+                assign(
+                  binding,
+                  get(binding, self[[".__properties__."]]),
+                  clone[[".__properties__."]]
+                )
+              }
+            }
+          },
+          {
+            assign(field, self[[field]], clone)
+            if (is.function(self[[field]])) {
+              environment(clone[[field]]) <- clone
             }
           }
-        },
-        {
-          assign(field, self[[field]], clone)
-          if (is.function(self[[field]])) {
-            environment(clone[[field]]) <- clone
+        )
+      }
+
+      # re-establish active bindings in .__properties__.; there are some issues
+      # # when we try to make a new active binding?
+
+      clone
+    }
+  )
+
+  assign(
+    ".__as_list__.",
+    function(all = FALSE) {
+      ls <- as_list_env(self)
+      if (all) {
+        for (field in names(self)) {
+          if (is.environment(self[[field]])) {
+            self[field] <- as_list_env(self[[field]])
           }
         }
-      )
-    }
-
-    # re-establish active bindings in .__properties__.; there are some issues
-    # # when we try to make a new active binding?
-
-    clone
-  }
-
-  .__as_list__. <- function(all = FALSE) {
-    ls <- as_list_env(self)
-    if (all) {
-      for (field in names(self)) {
-        if (is.environment(self[[field]])) {
-          self[field] <- as_list_env(self[[field]])
-        }
       }
+      ls
     }
-    ls
-  }
+  )
 
   # would this work? Could the assignment operator be masked and move everything
   # into the appropriate environment?
