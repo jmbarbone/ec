@@ -1,6 +1,13 @@
 library(ec)
 library(R6)
 
+# there may be some easier way to copy/move around environments and stuff
+# ... a 5x difference is kind of ehh, but it's still in microseconds
+
+# ec  200
+# R6   40
+# RC 6000
+
 bench::mark(
   ec = enclass("Queue", {
     .__new__. <- function(...) {
@@ -51,8 +58,34 @@ bench::mark(
        length = function() base::length(private$queue)
      )
   ),
-  check = FALSE,
-  iterations = 50000
+  ReferenceClass = setRefClass(
+    "Queue",
+    fields = list(
+      .queue = "list"
+    ),
+    methods = list(
+      initialize = function(...) {
+        .self$.queue <- list()
+        for (item in list(...)) {
+          .self$add(item)
+        }
+      },
+      add = function(x) {
+        .self$.queue <- c(.self$.queue, list(x))
+        invisible(.self)
+      },
+      remove = function() {
+        if (.length(.self$.queue) == 0) return(NULL)
+        head <- .self$.queue[[1]]
+        .self$.queue <- .self$.queue[-1]
+        head
+      },
+      .length = function() {
+        length(.self$.queue)
+      }
+    )
+  ),
+  check = FALSE
 ) |>
   print() |>
   ggplot2::autoplot()
