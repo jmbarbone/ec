@@ -128,6 +128,7 @@ enclass <- contain(function(
   unlock_binding(generator, ".__init__.")
   formals(generator[.__init__.]) <- formals(generator[.__new__.])
   class(generator[.__init__.]) <- "ec_generator"
+  environment(generator[.__new__.]) <- generator
   lock_binding(generator, ".__init__.")
   generator[.__init__.]
 })

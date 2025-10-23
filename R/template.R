@@ -117,6 +117,7 @@ contain({
   # properties if they aren't preset
   .__init__. <- function() {
     new <- self[[".__clone__."]]()
+    class(new) <- c("ec_object", "ec_capsule")
     args <- as.list(match.call(expand.dots = TRUE))[-1L]
     do.call(new[[".__new__."]], args, envir = new)
     # TODO different print method for ec_object
