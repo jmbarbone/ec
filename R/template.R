@@ -21,19 +21,27 @@ NULL
 # we don't want this to be in ls(container)
 act <- contain(function(name, expr, env = parent.frame()) {
   expr <- substitute(expr)
-  makeActiveBinding(name, eval(substitute(local(expr, env))), env)
+  makeActiveBinding(
+    name,
+    eval(substitute(local(expr, env))),
+    env
+  )
 })
 
 contain({
   on.exit({
     # ensure that I don't forget anything
-    .__restricted__. <- c(
-      "self",
-      ls(
-        envir = self,
-        pattern = .__restricted_pattern__.,
-        all.names = TRUE
-      )
+    assign(
+      ".__restricted__.",
+      c(
+        "self",
+        ls(
+          envir = self,
+          pattern = .__restricted_pattern__.,
+          all.names = TRUE
+        )
+      ),
+      envir = self
     )
   })
 
@@ -117,51 +125,100 @@ contain({
   }
 
   .__clone__. <- function() {
-    clone <- new.env(parent = self)
+    # browser()
+    clone <- new.env(parent = self, hash = TRUE)
     list2env(self[[".__as_list__."]](), clone)
 
     # copies environments, except for .__properties__.
-    for (field in setdiff(names(self), ".__properties__.")) {
-      if (is.environment(self[[field]])) {
-        assign(
-          field,
-          list2env(as_list_env(self[[field]]), clone),
-          clone
-        )
-      }
+    for (field in names(self)) {
+      switch(
+        field,
+        self = {
+          # this has to be done anyway
+          clone[["self"]] <- clone
+        },
+        ".__methods__." = {
+          assign(".__methods__.", new.env(parent = clone, hash = TRUE), clone)
+          if (is.environment(self[[".__methods__."]])) {
+            assign(
+              ".__methods__.",
+              clone_env(self[[".__methods__."]], clone),
+              as.list(self[[".__methods__."]], all.names = TRUE),
+              clone
+            )
+          } else {
+            list2env(self[[".__methods__."]], clone[[".__methods__."]])
+          }
+        },
+        ".__properties__." = {
+          assign(
+            ".__properties__.",
+            new.env(parent = clone, hash = TRUE),
+            clone
+          )
+
+          for (binding in names(self[[".__properties__."]])) {
+            if (bindingIsActive(binding, self[[".__properties__."]])) {
+              makeActiveBinding(
+                binding,
+                activeBindingFunction(binding, self[[".__properties__."]]),
+                clone[[".__properties__."]]
+              )
+            } else {
+              assign(
+                binding,
+                get(binding, self[[".__properties__."]]),
+                clone[[".__properties__."]]
+              )
+            }
+          }
+        },
+        {
+          assign(field, self[[field]], clone)
+          if (is.function(self[[field]])) {
+            environment(clone[[field]]) <- clone
+          }
+        }
+      )
     }
 
     # re-establish active bindings in .__properties__.; there are some issues
     # # when we try to make a new active binding?
-    for (binding in ls(self[[".__properties__."]], all.names = FALSE)) {
-      if (bindingIsActive(binding, self[[".__properties__."]])) {
-        makeActiveBinding(
-          binding,
-          activeBindingFunction(binding, self[[".__properties__."]]),
-          clone[[".__properties__."]]
-        )
-      } else {
-        assign(
-          binding,
-          get(binding, self[[".__properties__."]]),
-          clone[[".__properties__."]]
-        )
-      }
-    }
 
     clone
   }
 
-  .__as_list__. <- function() {
+  .__as_list__. <- function(all = FALSE) {
     ls <- as_list_env(self)
-    for (field in names(self)) {
-      if (is.environment(self[[field]])) {
-        assign(field, as_list_env(self[[field]]), ls)
+    if (all) {
+      for (field in names(self)) {
+        if (is.environment(self[[field]])) {
+          self[field] <- as_list_env(self[[field]])
+        }
       }
     }
     ls
   }
 
+  # would this work? Could the assignment operator be masked and move everything
+  # into the appropriate environment?
+  # assign("<-", function(x, value) UseMethod("<-"))
+  # assign("<-.default", function(x, value) base::`<-`(x, value))
+  # assign(
+  #   "<-.ec_capsule",
+  #   function(x, value) {
+  #     x <- substitute(x)
+  #     x <- as.character(x)
+  #     browser()
+  #     if (is.function(value)) {
+  #       assign(x, value, self[[".__methods__."]])
+  #     } else if (is_active(value)) {
+  #       makeActiveBinding(x, value, self[[".__properties__."]])
+  #     } else {
+  #       assign(x, value, self[[".__properties__."]])
+  #     }
+  #   }
+  # )
   self
 })
 
@@ -169,10 +226,6 @@ contain({
 as.list.ec_capsule <- function(x, ...) {
   x[[".__as_list__."]]()
 }
-
-as_list_env <- contain(function(x, sort = TRUE) {
-  as.list.environment(x, all.names = TRUE, sorted = sort)
-})
 
 # saving restricted variables as pseudos
 invisible(lapply(

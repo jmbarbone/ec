@@ -177,6 +177,7 @@ Counter := enclass({
 })
 
 counter <- Counter()
+# debugonce(ec_at)
 counter@current
 counter$add()
 counter$show()

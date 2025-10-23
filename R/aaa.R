@@ -1,6 +1,6 @@
 # We need a portable environment for when classes are defined in different
 # versions of {ec}
-container <- new.env(hash = FALSE)
+container <- new.env(hash = TRUE)
 class(container) <- "container"
 
 # for all functions required to generate new classes

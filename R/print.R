@@ -9,7 +9,13 @@ print.ec_capsule <- function(x, ...) {
   }
   if (length(properties)) {
     for (p in properties) {
-      cat("      @ ", p, "\n", sep = "")
+      cat(
+        "      @ ",
+        p,
+        if (bindingIsActive(p, x[.__properties__.])) "*",
+        "\n",
+        sep = ""
+      )
     }
   } else {
     cat("    <none>\n")
@@ -20,6 +26,7 @@ print.ec_capsule <- function(x, ...) {
   if (!is.null(methods)) {
     methods <- methods[!startsWith(methods, ".")]
   }
+
   if (length(methods)) {
     for (m in methods) {
       forms <- formals(x[.__methods__.][[m]])
@@ -42,10 +49,37 @@ print.ec_capsule <- function(x, ...) {
         )
         args <- paste(args, collapse = ", ")
       }
-      cat(sprintf("      $ %s(%s)\n", m, args))
+      star <- if (bindingIsActive(m, x[.__methods__.])) "*" else ""
+      cat(sprintf("      $ %s(%s)%s\n", m, args, star))
     }
   } else {
     cat("    <none>\n")
   }
+  invisible(x)
+}
+
+#' @export
+print.ec_properties <- function(x, ...) {
+  stars <- rep("", length(x))
+  stars[vapply(names(x), bindingIsActive, NA, env = x)] <- "*"
+  cat(
+    sprintf(
+      "<ec_properties> %s\n",
+      paste0("\n  @ ", names(x), stars, collapse = "")
+    )
+  )
+  invisible(x)
+}
+
+#' @export
+print.ec_methods <- function(x, ...) {
+  stars <- rep("", length(x))
+  stars[vapply(names(x), bindingIsActive, NA, env = x)] <- "*"
+  cat(
+    sprintf(
+      "<ec_methods> %s\n",
+      paste0("\n  $ ", names(x), "()", stars, collapse = "")
+    )
+  )
   invisible(x)
 }

@@ -109,27 +109,27 @@ enclass <- contain(function(
 ) {
   expr <- substitute(expr)
   if (inherits(name, "ec_capsule") && is.null(expr)) {
-    capsule <- name
+    generator <- name
     name <- NULL
   } else {
-    capsule <- eval(substitute(new_capsule(expr)))
+    generator <- eval(substitute(new_capsule(expr)))
   }
 
   if (!is.null(name)) {
-    capsule[.__name__.] <- name
+    generator[.__name__.] <- name
   }
 
   if (!is.null(package)) {
-    capsule[.__package__.] <- package
+    generator[.__package__.] <- package
   }
 
   # temporary locked to prevent user from overwriting
   # browser()
-  (base::unlockBinding)(".__init__.", capsule)
-  formals(capsule[.__init__.]) <- formals(capsule[.__new__.])
-  class(capsule[.__init__.]) <- "ec_generator"
-  lockBinding(".__init__.", capsule)
-  capsule[.__init__.]
+  unlock_binding(generator, ".__init__.")
+  formals(generator[.__init__.]) <- formals(generator[.__new__.])
+  class(generator[.__init__.]) <- "ec_generator"
+  lock_binding(generator, ".__init__.")
+  generator[.__init__.]
 })
 
 # fuj:::package

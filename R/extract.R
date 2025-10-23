@@ -1,6 +1,16 @@
 #' @export
 `@.ec_capsule` <- function(object, name) {
   name <- substitute(name)
+  name <- as.character(name)
+  ec_at(object, name)
+}
+
+#' @export
+`@.ec_generator` <- function(object, name) {
+  ec_at(environment(object), name)
+}
+
+ec_at <- function(object, name) {
   if (name == "self") {
     return(object)
   }
@@ -21,6 +31,8 @@
 #' @export
 `@<-.ec_capsule` <- function(object, name, value) {
   name <- substitute(name)
+  name <- as.character(name)
+
   if (name == "self") {
     stop("Cannot reassign 'self'")
   }
@@ -56,6 +68,11 @@
 }
 
 #' @export
+`$.ec_generator` <- function(x, name) {
+  `$.ec_capsule`(environment(x), name)
+}
+
+#' @export
 `$<-.ec_capsule` <- function(x, name, value) {
   name <- substitute(name)
   name <- as.character(name)
@@ -85,6 +102,13 @@
 }
 
 #' @export
+`[[.ec_generator` <- function(x, i, ...) {
+  i <- substitute(i)
+  i <- as.character(i)
+  `[[.ec_capsule`(environment(x), i, ...)
+}
+
+#' @export
 `[.ec_capsule` <- function(x, i, ...) {
   i <- substitute(i)
   i <- as.character(i)
@@ -92,7 +116,7 @@
 }
 
 #' @export
-`[.ec_generator` <- function(x, i) {
+`[.ec_generator` <- function(x, i, ...) {
   i <- substitute(i)
   i <- as.character(i)
   get(i, environment(x))
@@ -122,9 +146,19 @@
   dot_names(x[.__methods__.], pattern)
 }
 
+#' @exportS3Method utils::.DollarNames
+.DollarNames.ec_generator <- function(x, pattern = "") {
+  dot_names(environment(x)[.__methods__.], pattern)
+}
+
 #' @exportS3Method utils::.AtNames
 .AtNames.ec_capsule <- function(x, pattern = "") {
   dot_names(x[.__properties__.], pattern)
+}
+
+#' @exportS3Method utils::.AtNames
+.AtNames.ec_generator <- function(x, pattern = "") {
+  dot_names(environment(x)[.__properties__.], pattern)
 }
 
 

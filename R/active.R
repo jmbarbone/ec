@@ -66,7 +66,7 @@ active <- contain(function(
   if (!inherits(self, "ec_capsule")) {
     self <- new_capsule()
   }
-  env <- new.env(parent = self)
+  env <- new.env(parent = self, hash = TRUE)
   env$self <- self
   environment(get) <- env
   environment(set) <- env
@@ -91,12 +91,21 @@ active <- contain(function(
 })
 
 lock <- function(value) {
-  active(
+  locked <- active(
     default = value,
     set = function(value) {
       stop(sprintf("'%s' is read-only", ..name..), call. = FALSE)
     }
   )
+  class(locked) <- paste0(
+    "locked_",
+    if (is.function(value)) "method" else "property"
+  )
+  locked
+}
+
+is_active <- function(x) {
+  inherits(x, "active")
 }
 
 #' @export
