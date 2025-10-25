@@ -26,9 +26,13 @@
 #' cap@y
 new_capsule <- contain(function(expr) {
   # TODO include name
+
+  # The .__clone__.() method may not be ideal, and could potentially be slowing
+  # down some operations.  Instead, we could just create the container, assign
+  # the appropriate fields, then lock it down.
   capsule <- container$.__clone__.()
   capsule$self <- capsule
-  class(capsule) <- "ec_capsule"
+  class(capsule) <- "ec_capsule" # should this have the ec_capsule class or not?
 
   for (i in capsule[.__locked__.]) {
     lock_binding(capsule, i)
