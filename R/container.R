@@ -81,7 +81,7 @@ contain({
   assign(".__restricted_pattern__.", "^\\.__.*\\__.$")
   assign(".__properties__.", list())
   assign(
-    ".__locked__",
+    ".__locked__.",
     c(
       ".__locked__.",
       ".__restricted_pattern__.",
@@ -92,6 +92,9 @@ contain({
       ".__init__."
     )
   )
+
+  assign(".__methods__.", list())
+  assign(".__properties__.", list())
 
   act(".__new__.", {
     .value <- function() NULL
