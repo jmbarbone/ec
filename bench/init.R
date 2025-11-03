@@ -4,9 +4,11 @@ library(R6)
 # there may be some easier way to copy/move around environments and stuff
 # ... a 5x difference is kind of ehh, but it's still in microseconds
 
-# ec  200
-# R6   40
-# RC 6000
+# okay, twice as slow isn't so bad...
+
+# ec  100   (470)
+# R6   48   (270)
+# RC 8000 (20000)
 
 bench::mark(
   ec = enclass("Queue", {
@@ -85,6 +87,7 @@ bench::mark(
       }
     )
   ),
+  iterations = 99, # RC is so slow
   check = FALSE
 ) |>
   print() |>

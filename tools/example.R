@@ -13,13 +13,13 @@ my_capsule <- new_capsule({
   a <- active(
     default = 0L,
     set = function(value) {
-      self$.log()
+      self@.log()
       value <- as.integer(value) # coerce to integer
       stopifnot(value >= 0) # validate non-negative
       value
     },
     get = function() {
-      self$.log()
+      self@.log()
       ..value..
     }
   )
@@ -29,15 +29,15 @@ my_capsule <- new_capsule({
     default = 0L,
     # 'b' will reset 'a' to the same value
     set = function(value) {
-      self$.log()
+      self@.log()
       value <- as.integer(value) # coerce to integer
       stopifnot(value >= 0L) # validate non-negative
       self@a <- value # side effect
-      self$.log()
+      self@.log()
       value
     },
     get = function() {
-      self$.log()
+      self@.log()
       ..value..
     }
   )
@@ -51,7 +51,7 @@ my_capsule <- new_capsule({
   #' @param x A non-negative integer to add to 'a'
   add <- lock(function(x = 0L) {
     self@a <- self@a + x
-    self$.log()
+    self@.log()
     self@a + self@b + as.integer(x)
   })
 
@@ -157,7 +157,7 @@ Counter := enclass({
 
   add <- function(x = 1L) {
     x <- as.integer(x)
-    self$.track("add", x)
+    self@.track("add", x)
     self@current <- self@current + x
     invisible(self)
   }
@@ -170,25 +170,27 @@ Counter := enclass({
   reset <- function(x = 0L) {
     stopifnot(x >= 0L)
     x <- as.integer(x)
-    self$.track("reset", x)
+    self@.track("reset", x)
     self@current <- x
     invisible(self)
   }
 })
 
+# debugonce(Counter)
 counter <- Counter()
 # debugonce(ec_at)
 counter@current
-counter$add()
-counter$show()
+counter@add()
+counter@show()
 counter@current
-counter$add(2)
-counter$add(3L)
-counter$show()
-counter$reset()
-counter$show()
-try(counter$reset(-1L))
-counter$show()
-counter$.show_actions()
-counter[[".__name__."]]
-counter[[".__package__."]]
+counter@add(2)
+counter@add(3L)
+counter@show()
+counter@reset()
+counter@show()
+try(counter@reset(-1L))
+counter@show()
+counter@.show_actions()
+counter$.__name__.
+counter$.__package__.
+message("done!")

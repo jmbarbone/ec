@@ -116,21 +116,21 @@ enclass <- contain(function(
   }
 
   if (!is.null(name)) {
-    generator[.__name__.] <- name
+    assign(".__name__.", name, envir = generator)
   }
 
   if (!is.null(package)) {
-    generator[.__package__.] <- package
+    assign(".__package__.", package, envir = generator)
   }
 
   # temporary locked to prevent user from overwriting
   # browser()
   unlock_binding(generator, ".__init__.")
-  formals(generator[.__init__.]) <- formals(generator[.__new__.])
-  class(generator[.__init__.]) <- "ec_generator"
-  environment(generator[.__new__.]) <- generator
+  formals(generator$.__init__.) <- formals(generator$.__new__.)
+  class(generator$.__init__.) <- "ec_generator"
+  environment(generator$.__new__.) <- generator
   lock_binding(generator, ".__init__.")
-  generator[.__init__.]
+  generator$.__init__.
 })
 
 # fuj:::package

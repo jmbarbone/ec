@@ -35,12 +35,12 @@ bench::mark(
   ggplot2::autoplot()
 
 bench::mark(
-  hashed_mget = mget(nms, e1), # third
-  # unhashed_mget = mget(nms, e2), # this is just really bad
-  hashed_as_list_ext = as.list(e1)[nms], # second
-  unhashed_as_list_ext = as.list(e2)[nms], # first
-  # hashed_as_list = as.list(e1, sorted = TRUE), # pretty bad
-  # unhashed_as_list = as.list(e2, sorted = TRUE), # pretty bad
+  mget(nms, e1), # third
+  # mget(nms, e2), # this is just really bad
+  as.list(e1)[nms], # second
+  as.list(e2)[nms], # first
+  # as.list(e1, sorted = TRUE), # pretty bad
+  # as.list(e2, sorted = TRUE), # pretty bad
   check = TRUE,
   env = local({
     n <- runif(1e5)
@@ -56,7 +56,6 @@ bench::mark(
     invisible(x)
   })() |>
   ggplot2::autoplot()
-
 
 bench::mark(
   try(mget("fail", e1)),

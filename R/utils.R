@@ -24,10 +24,15 @@ clone_env <- contain(function(env, parent = parent.frame()) {
 clone_env2 <- contain(function(env, parent = parent.frame()) {
   ls <- as_list_env(env)
   funs <- filter_(ls, is.function)
-  ls[names(funs)] <- lapply(funs, function(f) {
-    environment(f) <- parent
-    f
-  })
+  # ls[names(funs)] <- lapply(funs, function(f) {
+  #   environment(f) <- parent
+  #   f
+  # })
+
+  for (i in seq_along(funs)) {
+    environment(funs[[i]]) <- parent
+  }
+
   list_as_env(ls, parent = parent)
 })
 

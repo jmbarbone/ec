@@ -91,17 +91,12 @@ active <- contain(function(
 })
 
 lock <- function(value) {
-  locked <- active(
+  active(
     default = value,
     set = function(value) {
       stop(sprintf("'%s' is read-only", ..name..), call. = FALSE)
     }
   )
-  class(locked) <- paste0(
-    "locked_",
-    if (is.function(value)) "method" else "property"
-  )
-  locked
 }
 
 is_active <- function(x) {

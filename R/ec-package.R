@@ -39,13 +39,13 @@ delayedAssign(
       n <- as.integer(n)
       stopifnot(n >= 0L)
       self@x <- self@x + n
-      self$.record()
+      self@.record()
       invisible(self)
     }
 
     reset <- function() {
       self@x <- 0L
-      self$.record()
+      self@.record()
       invisible(self)
     }
 

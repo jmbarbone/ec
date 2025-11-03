@@ -14,13 +14,13 @@ test_that("enclass() works", {
     .record <- list()
 
     .__new__. <- function(start = 0L) {
-      self$do(start)
+      self@do(start)
     }
   })
 
   foo <- Foo()
   expect_identical(foo@current, 0L)
-  foo$do(5L)
+  foo@do(5L)
   expect_identical(foo@current, 0L)
 })
 
@@ -31,13 +31,13 @@ test_that("enclass() errors", {
   })
 
   expect_error(Foo@aa)
-  expect_error(Foo$bb())
-  expect_error(Foo$a())
-  expect_error(Foo@b)
+  expect_error(Foo@bb())
+  expect_error(Foo@a())
+  expect_type(Foo@b, "closure")
 
   foo <- Foo()
   expect_error(foo@aa)
-  expect_error(foo$bb())
-  expect_error(foo$a())
-  expect_error(foo@b)
+  expect_error(Foo@bb())
+  expect_error(Foo@a())
+  expect_type(foo@b, "closure")
 })
