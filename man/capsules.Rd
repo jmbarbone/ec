@@ -13,8 +13,6 @@ Class Capsules
 \item \code{.__name__.} \cr\verb{[character]}\cr the name of the class (string)
 \item \code{.__package__.} \cr\verb{[character]}\cr The package where the class is defined (string)
 \item \code{.__expr__.} \cr\verb{[language]}\cr the expression used to define the class (language object)
-\item \code{.__properties__.}\cr\verb{[environment]}\cr an environment containing properties accessed with \code{@}
-\item \code{.__methods__.}\cr\verb{[environment]}\cr an environment containing methods accessed with \code{$}
 \item \code{.__restricted__.} \cr\verb{[character]}\cr a character vector of names that are restricted from being used as properties or methods
 \item \code{.__locked__.} \cr\verb{[character]}\cr a character vector of names that are locked from being modified
 \item \code{.__new__.(...)} \cr\verb{[function]}\cr function to create a new instance of the class

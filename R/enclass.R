@@ -1,11 +1,12 @@
 #' Create an encapsulated class
 #'
-#' @param name An optional name for the class.  If passed an `ec_capsule` object, ignores `expr`.
+#' @param name An optional name for the class.  If passed an `ec_capsule`
+#'   object, ignores `expr`.
 #' @inheritParams new_capsule
 #' @param package An optional package name for the class.
 #'
-#' @description
-#' `ec_object`s are very flexible, and follow a simple set of rules:
+#' @description `ec_object`s are very flexible, and follow a simple set of
+#' rules:
 #'   - **properties** are accessed with `@`
 #'     - _active bindings_ can be issues with `active()` to provide validators for setting and getting values
 #'     - new **properties** cannot be (easily) added to objects
@@ -24,9 +25,9 @@
 #'     - _reserved_ objects are usually only accessed with `ec_object[[reserved]]`
 #'     - all _reserved_ objects are directly stored within the `ec_capsule` environment
 #'
-#' @section Recommendations:
-#'   `ec_object`s are meant to prioritize flexibility and ease of use over strict requirements.
-#'   The below are some opinions on best practices, but are not enforced:
+#' @section Recommendations: `ec_object`s are meant to prioritize flexibility
+#'   and ease of use over strict requirements. The below are some opinions on
+#'   best practices, but are not enforced:
 #'   - avoid modifying **properties** and **methods** of a `ec_object` after it is created
 #'   - avoid calling  _private_ objects from classes (especially if you're not the author)
 #'   - use `self` and explicit namespace accessing (e.g., `pkg::name`) within **methods** to avoid incorrect scoping
@@ -124,7 +125,6 @@ enclass <- contain(function(
   }
 
   # temporary locked to prevent user from overwriting
-  # browser()
   unlock_binding(generator, ".__init__.")
   formals(generator$.__init__.) <- formals(generator$.__new__.)
   class(generator$.__init__.) <- "ec_generator"

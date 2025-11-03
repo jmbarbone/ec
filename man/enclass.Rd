@@ -8,7 +8,8 @@
 enclass(name, expr = NULL, package = .package())
 }
 \arguments{
-\item{name}{An optional name for the class.  If passed an \code{ec_capsule} object, ignores \code{expr}.}
+\item{name}{An optional name for the class.  If passed an \code{ec_capsule}
+object, ignores \code{expr}.}
 
 \item{expr}{An expression for assigning variables in new capsule.}
 
@@ -18,7 +19,8 @@ enclass(name, expr = NULL, package = .package())
 A object with class \code{ec_object}
 }
 \description{
-\code{ec_object}s are very flexible, and follow a simple set of rules:
+\code{ec_object}s are very flexible, and follow a simple set of
+rules:
 \itemize{
 \item \strong{properties} are accessed with \code{@}
 \itemize{
@@ -48,9 +50,9 @@ A object with class \code{ec_object}
 }
 }
 \section{Recommendations}{
-
-\code{ec_object}s are meant to prioritize flexibility and ease of use over strict requirements.
-The below are some opinions on best practices, but are not enforced:
+ \code{ec_object}s are meant to prioritize flexibility
+and ease of use over strict requirements. The below are some opinions on
+best practices, but are not enforced:
 \itemize{
 \item avoid modifying \strong{properties} and \strong{methods} of a \code{ec_object} after it is created
 \item avoid calling  \emph{private} objects from classes (especially if you're not the author)
