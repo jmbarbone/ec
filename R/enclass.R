@@ -116,20 +116,45 @@ enclass <- contain(function(
     generator <- eval(substitute(new_capsule(expr)))
   }
 
+  # with_binding(
+  #   "self",
+  #   generator,
+  #   assign("self", generator, envir = generator)
+  # )
+
   if (!is.null(name)) {
-    assign(".__name__.", name, envir = generator)
+    with_binding(
+      ".__name__.",
+      generator,
+      assign(".__name__.", name, envir = generator)
+    )
   }
 
   if (!is.null(package)) {
-    assign(".__package__.", package, envir = generator)
+    with_binding(
+      ".__package__.",
+      generator,
+      assign(".__package__.", package, envir = generator)
+    )
   }
 
   # temporary locked to prevent user from overwriting
-  unlock_binding(generator, ".__init__.")
-  formals(generator$.__init__.) <- formals(generator$.__new__.)
-  class(generator$.__init__.) <- "ec_generator"
-  environment(generator$.__new__.) <- generator
-  lock_binding(generator, ".__init__.")
+  with_binding(
+    ".__init__.",
+    generator,
+    {
+      formals(generator$.__init__.) <- formals(generator$.__new__.)
+      class(generator$.__init__.) <- "ec_generator"
+      environment(generator$.__init__.) <- generator
+    }
+  )
+
+  with_binding(
+    ".__new__.",
+    generator,
+    environment(generator$.__new__.) <- generator
+  )
+
   generator$.__init__.
 })
 

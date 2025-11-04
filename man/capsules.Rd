@@ -10,6 +10,7 @@ Class Capsules
 
 \itemize{
 \item \code{self} \cr\verb{[environment]}\cr the environment of the instance (environment)
+\item \code{.__capsule__.} \cr\verb{[environment]}\cr the environment of the class definition (environment)
 \item \code{.__name__.} \cr\verb{[character]}\cr the name of the class (string)
 \item \code{.__package__.} \cr\verb{[character]}\cr The package where the class is defined (string)
 \item \code{.__expr__.} \cr\verb{[language]}\cr the expression used to define the class (language object)
@@ -17,8 +18,8 @@ Class Capsules
 \item \code{.__locked__.} \cr\verb{[character]}\cr a character vector of names that are locked from being modified
 \item \code{.__new__.(...)} \cr\verb{[function]}\cr function to create a new instance of the class
 \item \code{.__init__.()} \cr\verb{[function]}\cr function to initialize a new instance of the class
-\item \code{.__clone__.()} \cr\verb{[function]}\cr function to clone the class definition
-\item \code{.__as_list__.()} \cr\verb{[function]}\cr function to convert the capsule to a list
+\item \code{.__create__.()} \cr\verb{[function]}\cr function to spawn a new class definition from the current one
+\item \code{.__setup__.()} \cr\verb{[function]}\cr function to clone the class definition
 }
 }
 

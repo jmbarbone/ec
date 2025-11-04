@@ -2,32 +2,20 @@
 `@.ec_capsule` <- function(object, name) {
   name <- substitute(name)
   name <- as.character(name)
-  ec_at(object, name)
+  eget(object, name)
 }
 
 #' @export
 `@.ec_generator` <- function(object, name) {
   name <- substitute(name)
   name <- as.character(name)
-  ec_at(environment(object), name)
-}
-
-ec_at <- function(object, name) {
-  if (name %in% get(".__restricted__.", object)) {
-    stop(sprintf("Cannot access '%s'", name))
-  }
-  get(name, envir = object, inherits = FALSE)
+  eget(environment(object), name)
 }
 
 #' @export
 `@<-.ec_capsule` <- function(object, name, value) {
   name <- substitute(name)
   name <- as.character(name)
-
-  if (name %in% object$.__restricted__.) {
-    stop(sprintf("Cannot reassign '%s'", name))
-  }
-
   assign(name, value, object)
   object
 }
@@ -36,14 +24,14 @@ ec_at <- function(object, name) {
 `$.ec_capsule` <- function(x, name) {
   name <- substitute(name)
   name <- as.character(name)
-  ec_dollar(x, name)
+  eget(x, name)
 }
 
 #' @export
 `$.ec_generator` <- function(x, name) {
   name <- substitute(name)
   name <- as.character(name)
-  ec_dollar(environment(x), name)
+  eget(get(".__capsule__.", environment(x)), name)
 }
 
 #' @export
@@ -54,22 +42,14 @@ ec_at <- function(object, name) {
   x
 }
 
-ec_dollar <- function(object, name) {
-  if (!name %in% get(".__restricted__.", object)) {
-    stop(sprintf("Cannot access '%s'", name))
-  }
-  get(name, envir = object, inherits = FALSE)
-}
-
-
 #' @exportS3Method utils::.DollarNames
 .DollarNames.ec_capsule <- function(x, pattern = "") {
-  grep(pattern, x$.__restricted__., value = TRUE, fixed = TRUE)
+  dollar_names(x, pattern)
 }
 
 #' @exportS3Method utils::.DollarNames
 .DollarNames.ec_generator <- function(x, pattern = "") {
-  grep(pattern, environment(x)$.__restricted__., value = TRUE, fixed = TRUE)
+  dollar_names(get(".__capsule__.", environment(x)), pattern)
 }
 
 #' @exportS3Method utils::.AtNames
@@ -82,19 +62,16 @@ ec_dollar <- function(object, name) {
   at_names(environment(x), pattern)
 }
 
-at_names <- function(x, pattern = "") {
-  nms <- names(x)
-  nms <- nms[match(nms, x$.__restricted__., 0L) == 0L]
-  grep(pattern, nms, value = TRUE, fixed = TRUE)
-}
-
 # helpers -----------------------------------------------------------------
 
-dot_names <- contain(function(x, pattern) {
-  nms <- names(x)
-  grep(pattern, nms[!startsWith(nms, ".")], value = TRUE, fixed = TRUE)
-})
+dollar_names <- function(x, pattern = "") {
+  grep(pattern, ls(x, all.names = TRUE), value = TRUE, fixed = TRUE)
+}
 
-is_field <- contain(function(x, name) {
-  name %in% names(x)
-})
+at_names <- function(x, pattern = "") {
+  grep(pattern, names(x), value = TRUE, fixed = TRUE)
+}
+
+eget <- function(env, name) {
+  get(name, envir = env, inherits = FALSE)
+}

@@ -46,12 +46,7 @@ print.pseudo <- function(x, ...) {
 #' })
 #'
 #'
-#' capsule@x
-#' capsule@x
-#' capsule@y
-#' capsule@x <- 10L
-#' capsule@x
-#' capsule@y
+#' capsule
 active <- contain(function(
   default = NULL,
   get = function() ..value..,
@@ -62,12 +57,9 @@ active <- contain(function(
     identical(formals(set), as.pairlist(alist(value = )))
   )
 
-  self <- get0("self", parent.frame())
-  if (!inherits(self, "ec_capsule")) {
-    self <- new_capsule()
-  }
-  env <- new.env(parent = self, hash = TRUE)
-  env$self <- self
+  parent <- parent.frame()
+  env <- new.env(parent = parent, hash = TRUE)
+  env$parent <- parent
   environment(get) <- env
   environment(set) <- env
   env$..value.. <- default

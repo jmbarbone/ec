@@ -39,3 +39,9 @@ lock_binding <- contain(function(env, name) {
 unlock_binding <- contain(function(env, name) {
   (base::unlockBinding)(name, env)
 })
+
+with_binding <- function(name, env, expr) {
+  unlock_binding(env, name)
+  on.exit(lock_binding(env, name), add = TRUE)
+  force(expr)
+}

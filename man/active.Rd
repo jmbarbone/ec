@@ -47,10 +47,5 @@ capsule <- new_capsule({
 })
 
 
-capsule@x
-capsule@x
-capsule@y
-capsule@x <- 10L
-capsule@x
-capsule@y
+capsule
 }

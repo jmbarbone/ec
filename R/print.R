@@ -1,7 +1,7 @@
 #' @export
 print.ec_capsule <- function(x, ...) {
   cat("<ec_capsule>\n")
-  cat("  .__name__.  ", x$.__name__., "\n", sep = "")
+  # cat("  .__name__.  ", x$.__name__., "\n", sep = "")
   invisible(x)
 }
 
