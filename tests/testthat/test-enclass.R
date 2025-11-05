@@ -30,14 +30,14 @@ test_that("enclass() errors", {
     b <- function() 2
   })
 
-  expect_error(Foo$self@aa)
-  expect_error(Foo$self@bb())
-  expect_error(Foo$self@a())
-  expect_type(Foo$self@b, "closure")
+  expect_error(Foo@aa)
+  expect_error(Foo@bb())
+  expect_error(Foo@a())
+  expect_type(Foo@b, "closure")
 
   foo <- Foo()
   expect_error(foo@aa)
-  expect_error(Foo@bb())
-  expect_error(Foo@a())
+  expect_error(foo@bb())
+  expect_error(foo@a())
   expect_type(foo@b, "closure")
 })
