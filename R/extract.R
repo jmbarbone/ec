@@ -2,14 +2,14 @@
 `@.ec_capsule` <- function(object, name) {
   name <- substitute(name)
   name <- as.character(name)
-  eget(object, name)
+  eget(eget(object, "self"), name)
 }
 
 #' @export
 `@.ec_generator` <- function(object, name) {
   name <- substitute(name)
   name <- as.character(name)
-  eget(environment(object), name)
+  eget(eget(environment(object), "self"), name)
 }
 
 #' @export
@@ -31,7 +31,7 @@
 `$.ec_generator` <- function(x, name) {
   name <- substitute(name)
   name <- as.character(name)
-  eget(get(".__capsule__.", environment(x)), name)
+  eget(eget(environment(x), ".__capsule__."), name)
 }
 
 #' @export
@@ -49,17 +49,17 @@
 
 #' @exportS3Method utils::.DollarNames
 .DollarNames.ec_generator <- function(x, pattern = "") {
-  dollar_names(get(".__capsule__.", environment(x)), pattern)
+  dollar_names(eget(environment(x), ".__capsule__."), pattern)
 }
 
 #' @exportS3Method utils::.AtNames
 .AtNames.ec_capsule <- function(x, pattern = "") {
-  at_names(x, pattern)
+  at_names(eget(x, "self"), pattern)
 }
 
 #' @exportS3Method utils::.AtNames
 .AtNames.ec_generator <- function(x, pattern = "") {
-  at_names(environment(x), pattern)
+  at_names(eget(environment(x), "self"), pattern)
 }
 
 # helpers -----------------------------------------------------------------
