@@ -66,6 +66,12 @@ active <- contain(function(
   env$..getter.. <- get
   env$..setter.. <- set
   env$..name.. <- NULL
+  env$self <- NULL
+
+  # TODO consider if all bindings should be locked, then only unlocked through
+  # internal functions
+  lockBinding("..getter..", env)
+  lockBinding("..setter..", env)
   lockEnvironment(env)
 
   fun <- local(

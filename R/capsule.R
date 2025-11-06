@@ -25,7 +25,6 @@
 #' cap@y
 #' cap@y
 new_capsule <- contain(function(expr) {
-  # browser()
   capsule <- container$.__create__.()
 
   if (!missing(expr)) {
@@ -42,7 +41,11 @@ new_capsule <- contain(function(expr) {
     if (inherits(vals[[i]], "active")) {
       rm(list = nms[i], envir = capsule$self)
       assign("..name..", nms[i], environment(vals[[i]]))
+      lockBinding("..name..", environment(vals[[i]]))
+
       assign("self", capsule$self, environment(vals[[i]]))
+      lockBinding("self", environment(vals[[i]]))
+
       makeActiveBinding(nms[i], vals[[i]], capsule$self)
     }
   }

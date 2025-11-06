@@ -100,7 +100,10 @@ contain({
     new <- .__setup__.()
     class(new) <- c("ec_object", "ec_capsule")
     args <- as.list(match.call(expand.dots = TRUE))[-1L]
-    do.call(get(".__new__.", new), args, envir = new)
+    .__new__. <- get(".__new__.", new)
+    environment(.__new__.) <- new
+    do.call(.__new__., args, envir = new)
+
     # TODO different print method for ec_object
     class(new) <- c(.__name__., "ec_object", "ec_capsule")
     new
@@ -133,6 +136,19 @@ contain({
   .__setup__. <- function() {
     new <- new.env(parent = .__capsule__.)
 
+    # list2env(
+    #   lapply(
+    #     as.list.environment(.__capsule__., all.names = TRUE),
+    #     function(x) {
+    #       if (is.function(x)) {
+    #         environment(x) <- new
+    #       }
+    #       x
+    #     }
+    #   ),
+    #   new
+    # )
+
     list2env(
       lapply(
         as.list.environment(self, all.names = TRUE),
@@ -146,8 +162,9 @@ contain({
       new
     )
 
-    new$self <- new
     class(new) <- c(.__name__., "ec_capsule")
+    assign("self", new, new)
+    # browser()
     new
   }
 
