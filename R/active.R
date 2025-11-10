@@ -30,7 +30,7 @@ print.pseudo <- function(x, ...) {
 #' @return An object with class `active`
 #' @export
 #' @examples
-#' capsule <- new_capsule({
+#' enclass("Example", {
 #'   x <- active(
 #'     default = 0L,
 #'     get = function() {

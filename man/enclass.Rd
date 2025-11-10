@@ -5,7 +5,7 @@
 \alias{ec_object}
 \title{Create an encapsulated class}
 \usage{
-enclass(name, expr = NULL, package = .package())
+enclass(name, expr = NULL, package = .package(), parent = NULL)
 }
 \arguments{
 \item{name}{An optional name for the class.  If passed an \code{ec_capsule}
@@ -14,6 +14,8 @@ object, ignores \code{expr}.}
 \item{expr}{An expression for assigning variables in new capsule.}
 
 \item{package}{An optional package name for the class.}
+
+\item{parent}{An optional parent capsule}
 }
 \value{
 A object with class \code{ec_object}
@@ -22,15 +24,13 @@ A object with class \code{ec_object}
 \code{ec_object}s are very flexible, and follow a simple set of
 rules:
 \itemize{
-\item \strong{properties} are accessed with \code{@}
+\item \strong{object bindings} are accessed with \code{@}
 \itemize{
-\item \emph{active bindings} can be issues with \code{active()} to provide validators for setting and getting values
-\item new \strong{properties} cannot be (easily) added to objects
+\item \emph{active bindings} can be set with \code{active()} to provide validators for setting and getting values
+\item new \strong{slots} cannot be (easily) added to objects
 }
-\item \strong{methods} are accessed with \code{$}
-\item \code{self} is a special \strong{property} that refers to the \code{ec_object} itself, an can be used inside \strong{methods} and \strong{properties} with \emph{active bindings}
-\item \code{environment(ec_object)} is an \code{ec_capsule} environment
-\item objects (i.e., \strong{properties} and \strong{methods}) are defined in the \code{expr} argument
+\item \strong{class bindings} are accessed with
+\item \strong{bindings} are defined in the \code{expr} argument
 \itemize{
 \item all \strong{objects} assigned will be assigned to the \code{ClassObject}
 \item \verb{self@<prop> <- value} and \verb{self$<method> <- function(...) \{\}} are equivalent to \verb{<prop> <- value} and \verb{<method> <- function(...) \{\}};

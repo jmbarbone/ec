@@ -1,4 +1,10 @@
-library(ec)
+r"(
+enclass() is a little slower than R6Class(), but only but 60 microseconds,
+still a lot faster than setRefClass()
+)"
+
+unloadNamespace("ec")
+devtools::load_all()
 library(R6)
 
 # there may be some easier way to copy/move around environments and stuff
@@ -6,8 +12,8 @@ library(R6)
 
 # okay, twice as slow isn't so bad...
 
-# ec  100   (470)
-# R6   48   (270)
+# ec  105   (470)
+# R6   45   (270)
 # RC 8000 (20000)
 
 bench::mark(
@@ -60,62 +66,62 @@ bench::mark(
       length = function() base::length(private$queue)
     )
   ),
-  ReferenceClass = setRefClass(
-    "Queue",
-    fields = list(
-      .queue = "list"
-    ),
-    methods = list(
-      initialize = function(...) {
-        .self$.queue <- list()
-        for (item in list(...)) {
-          .self$add(item)
-        }
-      },
-      add = function(x) {
-        .self$.queue <- c(.self$.queue, list(x))
-        invisible(.self)
-      },
-      remove = function() {
-        if (.length(.self$.queue) == 0) return(NULL)
-        head <- .self$.queue[[1]]
-        .self$.queue <- .self$.queue[-1]
-        head
-      },
-      .length = function() {
-        length(.self$.queue)
-      }
-    )
-  ),
-  iterations = 99, # RC is so slow
+  # ReferenceClass = setRefClass(
+  #   "Queue",
+  #   fields = list(
+  #     .queue = "list"
+  #   ),
+  #   methods = list(
+  #     initialize = function(...) {
+  #       .self$.queue <- list()
+  #       for (item in list(...)) {
+  #         .self$add(item)
+  #       }
+  #     },
+  #     add = function(x) {
+  #       .self$.queue <- c(.self$.queue, list(x))
+  #       invisible(.self)
+  #     },
+  #     remove = function() {
+  #       if (.length(.self$.queue) == 0) return(NULL)
+  #       head <- .self$.queue[[1]]
+  #       .self$.queue <- .self$.queue[-1]
+  #       head
+  #     },
+  #     .length = function() {
+  #       length(.self$.queue)
+  #     }
+  #   )
+  # ),
+  iterations = 9999, # RC is so slow
   check = FALSE
 ) |>
   print() |>
   ggplot2::autoplot()
 
-profvis::profvis({
-  enclass("Queue", {
-    .__new__. <- function(...) {
-      for (item in list(...)) {
-        self$add(item)
-      }
-    }
-
-    add <- function(x) {
-      self@.queue <- c(self@.queue, list(x))
-      invisible(self)
-    }
-
-    remove <- function() {
-      if (length(self@.queue) == 0) return(NULL)
-      head <- self@.queue[[1]]
-      self@.queue <- self@.queue[-1]
-      head
-    }
-
-    .queue <- list()
-    .length <- function() {
-      length(self@.queue)
-    }
-  })
-})
+# profvis::profvis({
+#   enclass("Queue", {
+#     .__new__. <- function(...) {
+#       for (item in list(...)) {
+#         self$add(item)
+#       }
+#     }
+#
+#     add <- function(x) {
+#       self@.queue <- c(self@.queue, list(x))
+#       invisible(self)
+#     }
+#
+#     remove <- function() {
+#       if (length(self@.queue) == 0) return(NULL)
+#       head <- self@.queue[[1]]
+#       self@.queue <- self@.queue[-1]
+#       head
+#     }
+#
+#     .queue <- list()
+#     .length <- function() {
+#       length(self@.queue)
+#     }
+#   })
+# })

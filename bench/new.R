@@ -1,11 +1,17 @@
+r"(
+ec: enclass()()
+R6: R6Class()$new()
+RC: setRefClass()$new()
+
+ec is about 5-10 microseconds faster than R6; both of which about 6 times faster
+than RC.
+
+processing, ec is about 50 us slower than R6; about 25% slower; both better than
+RC (300-350)
+)"
+
 library(ec)
 library(R6)
-
-# this is just as bad as RC...
-
-# ec  130
-# R6   25
-# RC  115
 
 ec_queue <- enclass("Queue", {
   .__new__. <- function(...) {
@@ -86,26 +92,28 @@ rc_queue <- setRefClass(
   )
 )
 
-# not much worse
+# actually, this looks better
 
-# ec  30 (105)
-# r6  29  (32)
-# rc 145
+# ec  16 (105)
+# r6  26  (32)
+# rc 135 (145)
 
 bench::mark(
   ec_queue(),
   r6_queue$new(),
   rc_queue$new(),
-  iterations = 99999,
+  iterations = 9999,
   check = FALSE
 ) |>
   print() |>
   ggplot2::autoplot()
 
 
-# ec 290
-# r6 220
+# ec 245 (290)
+# r6 211 (220)
 # rc 350
+
+# may the use of @ incurs a little overhead?
 
 local({
   ec <- ec_queue()

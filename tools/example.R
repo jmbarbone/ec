@@ -68,6 +68,10 @@ my_capsule <- new_capsule({
     ))
   })
 
+  foo <- function() {
+    "bar"
+  }
+
   .logs <- NULL
 
   .log <- function() {
@@ -89,13 +93,19 @@ my_capsule <- new_capsule({
   }
 })
 
-my_capsule@c
-try(my_capsule@c <- 1)
-my_capsule@a
-my_capsule@a <- 1L
-my_capsule@b
-my_capsule@b <- 2L
-my_capsule@a
+is_try_error <- function(expr) {
+  inherits(try(expr, silent = TRUE), "try-error")
+}
+
+suppressWarnings(stopifnot(
+  my_capsule@c,
+  is_try_error(my_capsule@c <- 1),
+  is_try_error(my_capsule@a),
+  is_try_error(my_capsule@b),
+  is.null(my_capsule@.logs),
+  my_capsule@foo() == "bar"
+))
+
 
 cap <- new_capsule({
   x <- 1
@@ -120,7 +130,6 @@ cap@x
 cap@y
 cap@x
 cap@y
-
 enclass(my_capsule)
 
 
@@ -188,7 +197,7 @@ counter@add(3L)
 counter@show()
 counter@reset()
 counter@show()
-try(counter@reset(-1L))
+stopifnot(is_try_error(counter@reset(-1L)))
 counter@show()
 counter@.show_actions()
 counter$.__name__.

@@ -31,7 +31,7 @@ functions; defaulting to the value in \code{default}.  The default value of
 \code{get} uses this symbol.
 }
 \examples{
-capsule <- new_capsule({
+enclass("Example", {
   x <- active(
     default = 0L,
     get = function() {

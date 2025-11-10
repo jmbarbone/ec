@@ -20,6 +20,11 @@
   object
 }
 
+# TODO maybe handle object methods?
+# method <- function(self, thing)
+# https://github.com/hadley/proto/blob/833b200e0441a5acc91e45ec06667fcdbd055261/R/proto.R#L329-L344
+# and throw a check?
+
 #' @export
 `$.ec_capsule` <- function(x, name) {
   name <- substitute(name)
@@ -42,6 +47,17 @@
   x
 }
 
+#' @export
+`$.ec_object` <- function(x, name) {
+  eget(parent.env(x@self), name)
+}
+
+#' @export
+`$<-.ec_object` <- function(x, name, value) {
+  stop("assignment via $ is not allowed for ec_object instances.")
+}
+
+
 #' @exportS3Method utils::.DollarNames
 .DollarNames.ec_capsule <- function(x, pattern = "") {
   dollar_names(x, pattern)
@@ -50,6 +66,11 @@
 #' @exportS3Method utils::.DollarNames
 .DollarNames.ec_generator <- function(x, pattern = "") {
   dollar_names(eget(environment(x), ".__capsule__."), pattern)
+}
+
+#' @exportS3Method utils::.DollarNames
+.DollarNames.ec_object <- function(x, pattern = "") {
+  grep(pattern, names(parent.env(x@self)), fixed = TRUE, value = TRUE)
 }
 
 #' @exportS3Method utils::.AtNames
@@ -65,7 +86,7 @@
 # helpers -----------------------------------------------------------------
 
 dollar_names <- function(x, pattern = "") {
-  grep(pattern, ls(x, all.names = TRUE), value = TRUE, fixed = TRUE)
+  grep(pattern, names(x), value = TRUE, fixed = TRUE)
 }
 
 at_names <- function(x, pattern = "") {

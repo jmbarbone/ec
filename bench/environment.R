@@ -3,13 +3,14 @@ e <- asNamespace("mark")
 # hash = FAlSE is much worse performance
 # mget() is slightly worse than as.list()
 bench::mark(
-  list2env(as.list(e, all = TRUE), hash = TRUE), # good
+  list2env(as.list(e, all = TRUE), hash = TRUE),
   list2env(as.list(e, all = TRUE), hash = FALSE),
-  as.environment(as.list(e, all = TRUE)), # good
+  as.environment(as.list(e, all = TRUE)), # best?
   list2env(mget(names(e), e), hash = TRUE),
   list2env(mget(names(e), e), hash = FALSE),
   as.environment(mget(names(e), e)),
-  rlang::env_clone(e), # okay
+  rlang::env_clone(e), # good
+  iterations = 9999,
   check = FALSE
 ) |>
   (\(x) {

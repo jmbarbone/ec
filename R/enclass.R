@@ -2,18 +2,18 @@
 #'
 #' @param name An optional name for the class.  If passed an `ec_capsule`
 #'   object, ignores `expr`.
-#' @inheritParams new_capsule
+#'
+#' @param expr An expression for assigning variables in new capsule.
 #' @param package An optional package name for the class.
+#' @param parent An optional parent capsule
 #'
 #' @description `ec_object`s are very flexible, and follow a simple set of
 #' rules:
-#'   - **properties** are accessed with `@`
-#'     - _active bindings_ can be issues with `active()` to provide validators for setting and getting values
-#'     - new **properties** cannot be (easily) added to objects
-#'   - **methods** are accessed with `$`
-#'   - `self` is a special **property** that refers to the `ec_object` itself, an can be used inside **methods** and **properties** with _active bindings_
-#'   - `environment(ec_object)` is an `ec_capsule` environment
-#'   - objects (i.e., **properties** and **methods**) are defined in the `expr` argument
+#'   - **object bindings** are accessed with `@`
+#'     - _active bindings_ can be set with `active()` to provide validators for setting and getting values
+#'     - new **slots** cannot be (easily) added to objects
+#'   - **class bindings** are accessed with
+#'   - **bindings** are defined in the `expr` argument
 #'     - all **objects** assigned will be assigned to the `ClassObject`
 #'     - `self@<prop> <- value` and `self$<method> <- function(...) {}` are equivalent to `<prop> <- value` and `<method> <- function(...) {}`;
 #'     - **methods** do not need
@@ -106,14 +106,16 @@
 enclass <- contain(function(
   name,
   expr = NULL,
-  package = .package()
+  package = .package(),
+  parent = NULL
 ) {
   expr <- substitute(expr)
+  parent <- parent %||% global
   if (inherits(name, "ec_capsule") && is.null(expr)) {
     generator <- name
     name <- NULL
   } else {
-    generator <- eval(substitute(new_capsule(expr)))
+    generator <- eval(substitute(new_capsule(expr, parent)))
   }
 
   # with_binding(
@@ -157,6 +159,51 @@ enclass <- contain(function(
 
   generator$.__init__.
 })
+
+new_capsule <- contain(function(expr, parent = global) {
+  capsule <- parent$.__create__.()
+
+  if (!missing(expr)) {
+    expr <- substitute(expr)
+    assign(".__expr__.", expr, capsule)
+    eval(expr, capsule$self)
+  }
+
+  class(capsule) <- "ec_capsule"
+  nms <- names(capsule$self)
+  vals <- mget(nms, capsule$self)
+
+  for (i in seq_along(nms)) {
+    if (inherits(vals[[i]], "active")) {
+      rm(list = nms[i], envir = capsule$self)
+      assign("..name..", nms[i], environment(vals[[i]]))
+      lockBinding("..name..", environment(vals[[i]]))
+
+      assign("self", capsule$self, environment(vals[[i]]))
+      lockBinding("self", environment(vals[[i]]))
+
+      makeActiveBinding(nms[i], vals[[i]], capsule$self)
+    }
+  }
+
+  assign(".__init__.", parent$.__init__., capsule)
+  environment(capsule$.__init__.) <- capsule
+
+  for (restricted in parent$.__restricted__.) {
+    if (restricted %in% nms) {
+      assign(
+        restricted,
+        get(restricted, capsule$self, inherits = FALSE),
+        capsule
+      )
+      rm(list = restricted, envir = capsule$self)
+    }
+  }
+
+  lockEnvironment(capsule, bindings = TRUE)
+  capsule
+})
+
 
 # fuj:::package
 .package <- contain(function(env = parent.frame()) {
