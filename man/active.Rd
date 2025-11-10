@@ -2,9 +2,15 @@
 % Please edit documentation in R/active.R
 \name{active}
 \alias{active}
+\alias{lock}
+\alias{is_active}
 \title{active}
 \usage{
 active(default = NULL, get = function() ..value.., set = function(value) value)
+
+lock(value)
+
+is_active(x)
 }
 \arguments{
 \item{default}{The default value of the object}
@@ -15,6 +21,10 @@ called.}
 
 \item{set}{A function to set the value. It must take one argument, the new
 value.  The value returned will be assigned to the active binding.}
+
+\item{value}{A value}
+
+\item{x}{An object}
 }
 \value{
 An object with class \code{active}
@@ -45,7 +55,4 @@ enclass("Example", {
 
   y <- 0L
 })
-
-
-capsule
 }

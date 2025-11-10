@@ -44,9 +44,6 @@ print.pseudo <- function(x, ...) {
 #'
 #'   y <- 0L
 #' })
-#'
-#'
-#' capsule
 active <- contain(function(
   default = NULL,
   get = function() ..value..,
@@ -88,6 +85,9 @@ active <- contain(function(
   structure(fun, class = "active")
 })
 
+#' @rdname active
+#' @export
+#' @param value A value
 lock <- function(value) {
   active(
     default = value,
@@ -97,6 +97,9 @@ lock <- function(value) {
   )
 }
 
+#' @rdname active
+#' @export
+#' @param x An object
 is_active <- function(x) {
   inherits(x, "active")
 }

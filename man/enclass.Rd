@@ -94,7 +94,7 @@ Counter := enclass({
 
   add <- function(x = 1L) {
     x <- as.integer(x)
-    self$.track("add", x)
+    self@.track("add", x)
     self@current <- self@current + x
     invisible(self)
   }
@@ -107,7 +107,7 @@ Counter := enclass({
   reset <- function(x = 0L) {
     stopifnot(x >= 0L)
     x <- as.integer(x)
-    self$.track("reset", x)
+    self@.track("reset", x)
     self@current <- x
     invisible(self)
   }
@@ -115,17 +115,17 @@ Counter := enclass({
 
 counter <- Counter()
 counter@current
-counter$add()
-counter$show()
+counter@add()
+counter@show()
 counter@current
-counter$add(2)
-counter$add(3L)
-counter$show()
-counter$reset()
-counter$show()
-try(counter$reset(-1L))
-counter$show()
-counter$.show_actions()
-counter[[".__name__."]]
-counter[[".__package__."]]
+counter@add(2)
+counter@add(3L)
+counter@show()
+counter@reset()
+counter@show()
+try(counter@reset(-1L))
+counter@show()
+counter@.show_actions()
+counter$.__name__.
+counter$.__package__.
 }
