@@ -13,6 +13,22 @@
 }
 
 #' @export
+`@.ec_object` <- function(object, name) {
+  name <- substitute(name)
+  name <- as.character(name)
+  got <- eget(eget(object, "self"), name)
+
+  # maybe this is something done when created
+  # explicitly require a 'self' parameter?
+  if (is.function(got) && identical(names(formals(got)[1L]), "self")) {
+    formals(got) <- formals(got)[-1L]
+    environment(got) <- object@self
+  }
+
+  got
+}
+
+#' @export
 `@<-.ec_capsule` <- function(object, name, value) {
   name <- substitute(name)
   name <- as.character(name)
